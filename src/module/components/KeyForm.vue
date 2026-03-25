@@ -192,9 +192,7 @@ watch(
 
 const providerOptions = [
   { text: '🗄️  Database (encrypted)', value: 'database' },
-  { text: '📁  File (server path)', value: 'file' },
   { text: '🖥️  Environment Variable', value: 'env' },
-  { text: '☁️  External (Vault / KMS)', value: 'external' },
 ];
 
 const providerMeta: Record<string, { icon: string; label: string; description: string }> = {
