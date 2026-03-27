@@ -1,6 +1,6 @@
 {
   "name": "directus-extension-key",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Centralized and secure key management extension for Directus",
   "author": {
     "name": "Ankit Chauhan",
@@ -15,10 +15,16 @@
     "token",
     "encryption"
   ],
-  "license": "MIT",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
+  "license": "gpl-3.0",
   "scripts": {
     "build": "directus-extension build",
-    "dev": "directus-extension build --watch"
+    "dev": "directus-extension build --watch",
+    "prepublishOnly": "npm run build"
   },
   "directus:extension": {
     "type": "bundle",
