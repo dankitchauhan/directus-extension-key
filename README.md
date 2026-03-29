@@ -1,4 +1,9 @@
-# Directus Key Extension
+# directus-extension-key
+
+[![npm version](https://img.shields.io/npm/v/directus-extension-key)](https://www.npmjs.com/package/directus-extension-key)
+[![npm downloads](https://img.shields.io/npm/dm/directus-extension-key)](https://www.npmjs.com/package/directus-extension-key)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Directus](https://img.shields.io/badge/Directus-%3E%3D10.0.0-64BCBD)](https://directus.io)
 
 A Directus **bundle extension** that provides centralized, secure management of API keys, access tokens, and encryption secrets. It prevents sensitive values from being exposed in configuration files or version control.
 
@@ -10,47 +15,38 @@ A Directus **bundle extension** that provides centralized, secure management of 
 - 🔌 **REST API** — Full CRUD + secure retrieval endpoint
 - 📦 **`getKey()` Helper** — Typed function for use in other Directus extensions
 
-## Project Structure
+## Installation
 
-```
-src/
-├── api/
-│   ├── hook/index.ts           ← creates directus_keys table on startup
-│   ├── endpoint/index.ts       ← REST routes at /km/*
-│   └── providers/
-│       ├── index.ts            ← getKey() helper + provider factory
-│       ├── database.ts         ← AES-256-GCM encrypt/decrypt
-│       ├── file.ts             ← reads from server file path
-│       ├── env.ts              ← reads from process.env
-│       └── external.ts        ← HTTP fetch (Vault / KMS)
-└── module/
-    ├── index.ts                ← Vue module registration
-    └── components/
-        ├── KeyList.vue         ← table with provider badges + CRUD actions
-        └── KeyForm.vue         ← drawer form with dynamic fields per provider
-```
-
-## Getting Started
-
-### 1. Build the Extension
+### Via npm (recommended)
 
 ```bash
+npm install directus-extension-key
+```
+
+Then place (or symlink) the package inside your Directus `extensions/` folder, or use a Docker volume mount — Directus will auto-load it on startup.
+
+### Via Docker / local build
+
+```bash
+# Inside the extension directory
 npm install
 npm run build
 ```
 
-### 2. Start Directus
+Mount the built output into your Directus container:
 
-The extension is auto-loaded via the mounted `extensions/` volume.
-
-```bash
-cd ../../   # directus/
-docker compose up
+```yaml
+# docker-compose.yml
+volumes:
+  - ./extensions/directus-extension-key/dist:/directus/extensions/directus-extension-key/dist
+  - ./extensions/directus-extension-key/package.json:/directus/extensions/directus-extension-key/package.json
 ```
 
-### 3. Use the Admin UI
+## Quick Start
 
-Log in to `http://localhost:8055/admin` → click **Key Manager** in the left sidebar.
+1. **Install** the extension (see above).
+2. **Start Directus** — the extension is auto-loaded on startup.
+3. **Open the Admin UI** at `http://localhost:8055/admin` → click **Key Manager** in the left sidebar.
 
 ## REST API
 
@@ -83,7 +79,7 @@ curl -X DELETE -H "Authorization: Bearer <token>" http://localhost:8055/km/keys/
 ## Using `getKey()` in Other Extensions
 
 ```typescript
-import { getKey } from 'directus-extension-key-manager/src/api/providers/index.js';
+import { getKey } from 'directus-extension-key/dist/api.js';
 
 // Inside any hook or endpoint that has the `database` knex instance:
 const stripeSecret = await getKey('STRIPE_KEY', database);
@@ -100,12 +96,32 @@ const stripeSecret = await getKey('STRIPE_KEY', database);
 
 ### External Provider
 
-Set `KM_EXTERNAL_TOKEN` env var to send a `Authorization: Bearer` header to your external endpoint.
+Set `KM_EXTERNAL_TOKEN` env var to send an `Authorization: Bearer` header to your external endpoint.
 
 Supported response shapes:
 - `{ "value": "..." }` — generic
 - `{ "data": { "value": "..." } }` — HashiCorp Vault KV v2
 - `{ "SecretString": "..." }` — AWS Secrets Manager
+
+## Project Structure
+
+```
+src/
+├── api/
+│   ├── hook/index.ts           ← creates directus_keys table on startup
+│   ├── endpoint/index.ts       ← REST routes at /km/*
+│   └── providers/
+│       ├── index.ts            ← getKey() helper + provider factory
+│       ├── database.ts         ← AES-256-GCM encrypt/decrypt
+│       ├── file.ts             ← reads from server file path
+│       ├── env.ts              ← reads from process.env
+│       └── external.ts        ← HTTP fetch (Vault / KMS)
+└── module/
+    ├── index.ts                ← Vue module registration
+    └── components/
+        ├── KeyList.vue         ← table with provider badges + CRUD actions
+        └── KeyForm.vue         ← drawer form with dynamic fields per provider
+```
 
 ## Security Notes
 
@@ -114,3 +130,7 @@ Supported response shapes:
 - Raw secret values are **never** returned by the `GET /km/keys` list endpoint
 - All endpoints require `admin` role authentication
 - For production, prefer `file`, `env`, or `external` providers over `database`
+
+## License
+
+[GPL-3.0](https://www.gnu.org/licenses/gpl-3.0) © [Ankit Chauhan](https://github.com/ankitchauhan246)
