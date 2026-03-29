@@ -1,6 +1,6 @@
 {
   "name": "directus-extension-key",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Centralized and secure key management extension for Directus",
   "author": {
     "name": "Ankit Chauhan",

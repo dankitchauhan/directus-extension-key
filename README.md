@@ -9,7 +9,7 @@ A Directus **bundle extension** that provides centralized, secure management of 
 
 ## Features
 
-- 🗄️ **4 Storage Providers** — Database (encrypted), File, Environment Variable, External (Vault/KMS)
+- 🗄️ **2 Storage Providers** — Database (encrypted), Environment Variable
 - 🔐 **AES-256-GCM Encryption** — Database-stored values are encrypted using your Directus `SECRET`
 - 🖥️ **Admin UI** — Vue 3 module in the Directus Data Studio sidebar
 - 🔌 **REST API** — Full CRUD + secure retrieval endpoint
@@ -90,38 +90,7 @@ const stripeSecret = await getKey('STRIPE_KEY', database);
 | Provider | How it resolves the value | Recommended for |
 |---|---|---|
 | `database` | Decrypts AES-256-GCM value from DB | Development / low-risk |
-| `file` | Reads from absolute file path on server | Staging / production |
 | `env` | Returns `process.env[varName]` | CI/CD / containers |
-| `external` | HTTP GET to Vault / KMS URL | Production / enterprise |
-
-### External Provider
-
-Set `KM_EXTERNAL_TOKEN` env var to send an `Authorization: Bearer` header to your external endpoint.
-
-Supported response shapes:
-- `{ "value": "..." }` — generic
-- `{ "data": { "value": "..." } }` — HashiCorp Vault KV v2
-- `{ "SecretString": "..." }` — AWS Secrets Manager
-
-## Project Structure
-
-```
-src/
-├── api/
-│   ├── hook/index.ts           ← creates directus_keys table on startup
-│   ├── endpoint/index.ts       ← REST routes at /km/*
-│   └── providers/
-│       ├── index.ts            ← getKey() helper + provider factory
-│       ├── database.ts         ← AES-256-GCM encrypt/decrypt
-│       ├── file.ts             ← reads from server file path
-│       ├── env.ts              ← reads from process.env
-│       └── external.ts        ← HTTP fetch (Vault / KMS)
-└── module/
-    ├── index.ts                ← Vue module registration
-    └── components/
-        ├── KeyList.vue         ← table with provider badges + CRUD actions
-        └── KeyForm.vue         ← drawer form with dynamic fields per provider
-```
 
 ## Security Notes
 
@@ -129,7 +98,7 @@ src/
 
 - Raw secret values are **never** returned by the `GET /km/keys` list endpoint
 - All endpoints require `admin` role authentication
-- For production, prefer `file`, `env`, or `external` providers over `database`
+- For production, prefer `env` providers over `database`
 
 ## License
 
